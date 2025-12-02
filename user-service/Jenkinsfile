@@ -1,43 +1,32 @@
 pipeline {
-    agent {
-        docker {
-            image 'maven:3.9.9-jdk-21'
-            args '-v $HOME/.m2:/root/.m2'
-        }
-    }
-
-    environment {
-        MAVEN_OPTS = '-Xmx1024m'
-    }
+    agent any
 
     stages {
         stage('Checkout') {
             steps {
-                // Checkout the full repo, then run build inside current folder
                 checkout scm
             }
         }
 
         stage('Build') {
             steps {
-                dir("${env.WORKSPACE}/${env.JOB_NAME}") {
-                    // Build only the current service
-                    sh "mvn clean package -f pom.xml"
+                dir('user-service') {
+                    sh 'mvn clean package'
                 }
             }
         }
 
         stage('Test') {
             steps {
-                dir("${env.WORKSPACE}/${env.JOB_NAME}") {
-                    sh "mvn test -f pom.xml"
+                dir('user-service') {
+                    sh 'mvn test'
                 }
             }
         }
 
-        stage('Archive Artifacts') {
+        stage('Archive') {
             steps {
-                dir("${env.WORKSPACE}/${env.JOB_NAME}") {
+                dir('user-service') {
                     archiveArtifacts artifacts: 'target/*.jar', allowEmptyArchive: true
                 }
             }
@@ -45,14 +34,11 @@ pipeline {
     }
 
     post {
-        always {
-            echo "Finished pipeline for ${env.JOB_NAME}"
-        }
         success {
-            echo "${env.JOB_NAME} built successfully!"
+            echo 'user-service built successfully!'
         }
         failure {
-            echo "${env.JOB_NAME} build failed!"
+            echo 'user-service build failed!'
         }
     }
 }
