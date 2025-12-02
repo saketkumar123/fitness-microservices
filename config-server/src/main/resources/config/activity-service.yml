@@ -1,0 +1,44 @@
+server:
+  port: 9091
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/fitnessactivity
+      database: fitnessactivity
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    exchange:
+      name: fitness.exchange
+    queue:
+      name: activity.queue
+    routing:
+      key: activity.tracking
+
+  cloud:
+    inetutils:
+      preferred-networks:
+        - "127\\."
+      ignored-interfaces:
+        - "docker.*"
+        - "vEthernet.*"
+        - "VirtualBox.*"
+        - "WSL.*"
+      default-ip-address: 127.0.0.1     # ? very important
+      default-hostname: 127.0.0.1       # ? very important
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+
+  instance:
+    prefer-ip-address: true
+    ip-address: 127.0.0.1
+    hostname: 127.0.0.1
+    instance-id: ${spring.application.name}:${server.port}:${random.value}
+    nonSecurePortEnabled: true
+    nonSecurePort: 9091

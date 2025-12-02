@@ -1,0 +1,43 @@
+server:
+  port: 9090
+
+spring:
+  datasource:
+    username: root
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/embarkx?useSSL=false&serverTimezone=UTC
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+
+  cloud:
+    inetutils:
+      preferred-networks:
+        - "127\\."         # FORCE local network
+      ignored-interfaces:
+        - "docker.*"
+        - "vEthernet.*"
+        - "VirtualBox.*"
+        - "WSL.*"
+      default-ip-address: 127.0.0.1
+      default-hostname: 127.0.0.1
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+
+  instance:
+    prefer-ip-address: true
+    ip-address: 127.0.0.1
+    hostname: 127.0.0.1
+    instance-id: user-service:${server.port}:${random.uuid}
+    nonSecurePortEnabled: true
+    nonSecurePort: 9090

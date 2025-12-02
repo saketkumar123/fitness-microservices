@@ -1,0 +1,51 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway-api
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: user-service
+          uri: lb://user-service        # Must match Eureka service name (case-sensitive)
+          predicates:
+            - Path=/api/users/**       # Routes all /api/users/** paths
+          filters:
+            - StripPrefix=1
+
+    inetutils:
+      preferred-networks:
+        - "127\\."         # FORCE local network
+      ignored-interfaces:
+        - "docker.*"
+        - "vEthernet.*"
+        - "VirtualBox.*"
+        - "WSL.*"
+      default-ip-address: 127.0.0.1
+      default-hostname: 127.0.0.1
+
+eureka:
+  client:
+    register-with-eureka: true      # Gateway itself registers with Eureka
+    fetch-registry: true            # Fetch service registry from Eureka
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+  instance:
+    prefer-ip-address: true
+    ip-address: 127.0.0.1
+    hostname: 127.0.0.1
+    instance-id: gateway-api:${server.port}:${random.uuid}
+    nonSecurePortEnabled: true
+    nonSecurePort: 8080
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG   # Debug Gateway routing
+    org.springframework.cloud.client.discovery: DEBUG

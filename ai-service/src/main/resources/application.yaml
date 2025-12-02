@@ -1,0 +1,7 @@
+server:
+  port: 9092
+spring:
+  application:
+    name: ai-service
+  config:
+    import: optional:configserver:http://localhost:9999
