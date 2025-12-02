@@ -11,8 +11,8 @@ pipeline {
         stage('Build') {
             steps {
                 dir('user-service') {
-                    sh "docker run --rm -v ${env.WORKSPACE}:/app -w /app/user-service maven:3.9.9-jdk-21 mvn clean package"
-
+                    // Run Maven directly
+                    sh 'mvn clean package'
                 }
             }
         }
@@ -20,7 +20,7 @@ pipeline {
         stage('Test') {
             steps {
                 dir('user-service') {
-                    sh 'docker run --rm -v $PWD:/app -w /app/user-service maven:3.9.9-jdk-21 mvn test'
+                    sh 'mvn test'
                 }
             }
         }
