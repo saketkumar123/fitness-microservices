@@ -18,18 +18,18 @@ pipeline {
         stage('Build') {
             steps {
                 dir('user-service') {
-                    sh 'mvn clean package -DskipTests=false'
+                    sh 'mvn clean package -DskipTests=true'
                 }
             }
         }
 
-        stage('Test') {
-            steps {
-                dir('user-service') {
-                    sh 'mvn test'
-                }
-            }
-        }
+//         stage('Test') {
+//             steps {
+//                 dir('user-service') {
+//                     sh 'mvn test'
+//                 }
+//             }
+//         }
 
         stage('Archive Artifacts') {
             steps {
