@@ -8,6 +8,7 @@ spring:
   cloud:
     config:
       server:
-        bootstrap: false
-        native:
-          search-locations: classpath:/config
+        git:
+          uri: https://github.com/your-username/config-repo
+          clone-on-start: true
+          default-label: main

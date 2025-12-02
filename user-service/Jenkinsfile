@@ -1,7 +1,14 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = "saket9031/user-service"
+        IMAGE_TAG = "v${BUILD_NUMBER}"        // Auto-increment tag
+        DOCKERHUB_CREDS = credentials('dockerhub-credentials') // Add in Jenkins
+    }
+
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
@@ -11,8 +18,7 @@ pipeline {
         stage('Build') {
             steps {
                 dir('user-service') {
-                    // Run Maven directly
-                    sh 'mvn clean package'
+                    sh 'mvn clean package -DskipTests=false'
                 }
             }
         }
@@ -25,21 +31,51 @@ pipeline {
             }
         }
 
-        stage('Archive') {
+        stage('Archive Artifacts') {
             steps {
                 dir('user-service') {
-                    archiveArtifacts artifacts: 'target/*.jar', allowEmptyArchive: true
+                    archiveArtifacts artifacts: 'target/*.jar', allowEmptyArchive: false
                 }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                script {
+                    dir('user-service') {
+                        sh """
+                        docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                        docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Docker Login') {
+            steps {
+                sh """
+                echo "${DOCKERHUB_CREDS_PSW}" | docker login -u "${DOCKERHUB_CREDS_USR}" --password-stdin
+                """
+            }
+        }
+
+        stage('Docker Push') {
+            steps {
+                sh """
+                docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                docker push ${IMAGE_NAME}:latest
+                """
             }
         }
     }
 
     post {
         success {
-            echo 'user-service built successfully!'
+            echo "User-service built & dockerized successfully!"
         }
         failure {
-            echo 'user-service build failed!'
+            echo "Build failed!"
         }
     }
 }
