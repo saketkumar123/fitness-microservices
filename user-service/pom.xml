@@ -107,6 +107,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<finalName>user-service-docker-image</finalName>
 	</build>
 
 </project>
